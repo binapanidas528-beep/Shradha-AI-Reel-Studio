@@ -1,0 +1,32 @@
+import os
+from moviepy.editor import TextClip, CompositeVideoClip, AudioFileClip, ColorClip
+
+def generate_reel(script_text, bgm_option):
+    output_filename = "output_reel.mp4"
+    
+    # Create a 5-second color video background (vertical 1080x1920)
+    clip = ColorClip(size=(1080, 1920), color=[20, 20, 30], duration=5)
+    
+    # Add text overlay
+    txt_clip = TextClip(script_text, fontsize=50, color='white', size=(900, None), method='caption')
+    txt_clip = txt_clip.set_position('center').set_duration(5)
+    
+    video = CompositeVideoClip([clip, txt_clip])
+    
+    # Attach background music if selected
+    bgm_file = "bgm.mp3"
+    if bgm_option == "Default Music" and os.path.exists(bgm_file):
+        audio = AudioFileClip(bgm_file).subclip(0, 5)
+        video = video.set_audio(audio)
+    
+    # Render with forced h264 and aac codecs
+    video.write_videofile(
+        output_filename,
+        fps=24,
+        codec="libx264",
+        audio_codec="aac",
+        temp_audiofile="temp-audio.m4a",
+        remove_temp=True
+    )
+    
+    return output_filename
